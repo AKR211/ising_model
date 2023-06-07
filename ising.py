@@ -20,7 +20,7 @@ def energy(L):
 	U=0
 	for index,value in ndenumerate(L):
 			U+=interaction(L,index[0],index[1])
-	return -U
+	return -U/2
 
 #metropolis algorithm
 @njit(cache=True)
@@ -35,7 +35,7 @@ def main(size,betaJ,n,p=0.5):
 	for k in range(n):
 		i=random.randint(size)
 		j=random.randint(size)
-		dE=4*interaction(L,i,j)  #change in energy
+		dE=2*interaction(L,i,j)  #change in energy
 		if exp(-betaJ*dE)>random.uniform(0,1):  #acceptance condition
 			L[i,j]=-L[i,j]
 			U+=dE
@@ -50,12 +50,12 @@ if __name__=='__main__':
 
 	#values of parameters
 	size=500                   #lattice size
-	betaJ=0.4                  #beta*J
+	Temp=3                   #Temperature
 	n=10000000                 #number of MC steps
 	p=0.5
 
 	#plotting
-	Energy,Lattice,Magnetization,Lattice_init,History=main(size,betaJ,n,p)
+	Energy,Lattice,Magnetization,Lattice_init,History=main(size,1/Temp,n,p)
 	fig=plt.figure(figsize=([10,6]))
 	gs = gridspec.GridSpec(2, 2)
 	gs.update(wspace = 0.3, hspace = 0.3)
