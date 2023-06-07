@@ -1,8 +1,12 @@
 from numpy import *
-from numba import njit
+from numba import njit,jit
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import json
+
+@njit(cache=True)
+def lattice_builder(size,p=0.5): #p = probability of '1'
+	return 2*searchsorted(cumsum(array([p,1-p])), random.rand(size,size))-1
 
 #interaction energy of one lattice site
 @njit(cache=True)
@@ -20,10 +24,10 @@ def energy(L):
 
 #metropolis algorithm
 @njit(cache=True)
-def main(size,betaJ,n):
+def main(size,betaJ,n,p=0.5):
 	Magnetization=[]
 	Energy=[]                 
-	L=2*random.randint(0,2,(size,size))-ones(size)
+	L=lattice_builder(size,p)
 	L_init=L.copy()
 	History=[(size,size)]*n
 	U=energy(L)
@@ -46,18 +50,21 @@ if __name__=='__main__':
 
 	#values of parameters
 	size=500                   #lattice size
-	betaJ=0.7                  #beta*J
-	n=1000000                 #number of MC steps
+	betaJ=0.4                  #beta*J
+	n=10000000                 #number of MC steps
+	p=0.5
 
 	#plotting
-	Energy,Lattice,Magnetization,L_init,History=main(size,betaJ,n)
+	Energy,Lattice,Magnetization,Lattice_init,History=main(size,betaJ,n,p)
 	fig=plt.figure(figsize=([10,6]))
 	gs = gridspec.GridSpec(2, 2)
 	gs.update(wspace = 0.3, hspace = 0.3)
-	ax1=plt.subplot(gs[:2,0])
+	ax0=plt.subplot(gs[0,0])
+	ax1=plt.subplot(gs[1,0])
 	ax2=plt.subplot(gs[0,1])
 	ax3=plt.subplot(gs[1,1])
-	ax1.imshow(Lattice)
+	ax0.imshow(Lattice_init, cmap='Greys')
+	ax1.imshow(Lattice, cmap='Greys')
 	ax2.plot(range(1,n+1),Energy)
 	ax3.plot(range(1,n+1),Magnetization)
 	plt.show()
