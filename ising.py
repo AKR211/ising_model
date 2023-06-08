@@ -1,5 +1,5 @@
 from numpy import *
-from numba import njit,jit
+from numba import njit
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import json
@@ -43,19 +43,47 @@ def main(size,betaJ,n,p=0.5):
 			History[k]=(i,j)
 		Magnetization.append(S)
 		Energy.append(U)
-	return Energy,L,Magnetization,L_init,History
+	return Energy,Magnetization,L_init,L,History
+
+@njit(cache=True)
+def data1(size,betaJ,n,p=0.5):
+	Magnetization=[]
+	Energy=[]                 
+	L=lattice_builder(size,p)
+	U=energy(L)
+	S=L.sum()
+	for k in range(n):
+		i=random.randint(size)
+		j=random.randint(size)
+		dE=2*interaction(L,i,j)  #change in energy
+		if exp(-betaJ*dE)>random.uniform(0,1):  #acceptance condition
+			L[i,j]=-L[i,j]
+			U+=dE
+			S+=2*L[i,j]
+		Magnetization.append(S)
+		Energy.append(U)
+	return Energy,Magnetization
+
+@njit(cache=True)
+def data2(size,betaJ,n,p=0.5):               
+	L=lattice_builder(size,p)
+	for k in range(n):
+		i,j=random.randint(size),random.randint(size)
+		if exp(-betaJ*2*interaction(L,i,j))>random.uniform(0,1):  #acceptance condition
+			L[i,j]=-L[i,j]
+	return L
 
 #plotting and saving
 if __name__=='__main__':
 
 	#values of parameters
-	size=500                   #lattice size
-	Temp=3                   #Temperature
-	n=10000000                 #number of MC steps
+	size=50                   #lattice size
+	Temp=1                   #Temperature
+	n=1000000                 #number of MC steps
 	p=0.5
 
 	#plotting
-	Energy,Lattice,Magnetization,Lattice_init,History=main(size,1/Temp,n,p)
+	Energy,Magnetization,Lattice_init,Lattice,History=main(size,1/Temp,n,p)
 	fig=plt.figure(figsize=([10,6]))
 	gs = gridspec.GridSpec(2, 2)
 	gs.update(wspace = 0.3, hspace = 0.5)
