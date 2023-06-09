@@ -14,15 +14,15 @@ def values(size,n,p,eq,Temps):
 	for Temp in Temps:
 		data=data1(size,1/Temp,n,p)
 		Es.append(average(data[0][int(eq*n):]))
-		Ms.append(average(data[1][int(eq*n):]))
+		Ms.append(-abs(average(data[1][int(eq*n):])))
 	Ms,Es=array(Ms)/(size**2),array(Es)/(size**2)
 	return Es,Ms
 
 def plot1():
 	Temps=[i/20 for i in range(1,101)]
-	size=250
+	size=50
 	n=1000000
-	p=0.75
+	p=0.5
 	eq=0.75
 	
 	fig=plt.figure(figsize=([10,6]))
@@ -42,9 +42,9 @@ def plot1():
 	ax3.set_title('Susceptibility')
 	ax3.set(xlabel='Temperature', ylabel='Chi/N')
 	
-	var=[0.9,0.7,0.5]
+	var=[50]
 	for x in var:
-		p=x
+		size=x
 		colour=colours.pop()
 		Es,Ms=values(size,n,p,eq,Temps)
 		ax0.plot(Temps,Es,'.',color=colour) #values("parameter"=x)
@@ -83,7 +83,7 @@ def plot2():
 		ax.imshow(L, cmap='Greys')
 	return [size,n,p,var,L.tolist()]
 
-save=plot2()
+save=plot1()
 fig=plt.gcf()
 plt.show()
 name=str(input('Save?:'))
