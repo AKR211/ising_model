@@ -1,4 +1,4 @@
-from ising import data1,data2,average,linspace,array,sign,gridspec,var
+from ising_3d import main,average,linspace,array,sign,gridspec,var,linspace
 import matplotlib.pyplot as plt
 from numba import njit,jit
 import json
@@ -12,18 +12,17 @@ def values(size,n,p,eq,Temps):
 	Es=[0.0]
 	Ms=[0.0]
 	for Temp in Temps:
-		data=data1(size,1/Temp,n,p)
+		data=main(size,1/Temp,n,p)
 		Es.append(average(data[0][int(eq*n):]))
-		varEs.append(var(data[0]))
 		Ms.append(-abs(average(data[1][int(eq*n):])))
 	Ms,Es=array(Ms)/(size**2),array(Es)/(size**2)
 	return Es[1:],Ms[1:]
 
 def plot1():
-	Temps=[i/20 for i in range(1,101)]
+	Temps=linspace(0,10,21)[1:]
 	size=50
 	n=10000000
-	p=0.5
+	p=0.75
 	eq=0.75
 	
 	fig=plt.figure(figsize=([10,6]))
