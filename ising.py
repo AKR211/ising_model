@@ -60,7 +60,7 @@ def data1(size,betaJ,n,p=0.5):
 			L[i,j]=-L[i,j]
 			U+=dE
 			S+=2*L[i,j]
-		Magnetization.append(S)
+		Magnetization.append(-abs(S))
 		Energy.append(U)
 	return Energy,Magnetization
 
@@ -77,9 +77,9 @@ def data2(size,betaJ,n,p=0.5):
 if __name__=='__main__':
 
 	#values of parameters
-	size=50                   #lattice size
+	size=500                   #lattice size
 	Temp=5                   #Temperature
-	n=10000000                 #number of MC steps
+	n=1000000                 #number of MC steps
 	p=0.75
 
 	#plotting
@@ -107,4 +107,4 @@ if __name__=='__main__':
 	name=str(input('Save?:'))
 	if name!='':
 		file=open(name+'.json','w')
-		file.write(json.dumps([size,L_init.tolist()]+History))
+		file.write(json.dumps([size,Lattice_init.tolist()]+History))

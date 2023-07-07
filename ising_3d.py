@@ -76,7 +76,7 @@ if __name__=='__main__':
 
 	#values of parameters
 	size=50                   #lattice size
-	Temp=5                   #Temperature
+	Temp=1                   #Temperature
 	n=10000000	                 #number of MC steps
 	p=0.75
 

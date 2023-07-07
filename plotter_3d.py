@@ -19,7 +19,7 @@ def values(size,n,p,eq,Temps):
 	return Es[1:],Ms[1:]
 
 def plot1():
-	Temps=linspace(0,10,21)[1:]
+	Temps=linspace(0,10,101)[1:]
 	size=50
 	n=10000000
 	p=0.75

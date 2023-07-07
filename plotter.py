@@ -1,29 +1,28 @@
-from ising import data1,data2,average,linspace,array,sign,gridspec,var
+from ising import data1,data2,average,linspace,array,sign,gridspec,var,mean,std
 import matplotlib.pyplot as plt
 from numba import njit,jit
 import json
 
 @njit
-def ctl_diff(X,Y,i):
-	return(Y[i+1]-Y[i-1])/(X[i+1]-X[i-1])
-
-@jit
 def values(size,n,p,eq,Temps):
 	Es=[0.0]
 	Ms=[0.0]
+	varEs=[0.0]
+	varMs=[0.0]
 	for Temp in Temps:
 		data=data1(size,1/Temp,n,p)
 		Es.append(average(data[0][int(eq*n):]))
-		varEs.append(var(data[0]))
+		varEs.append(var(array(data[0][int(eq*n):])))
 		Ms.append(-abs(average(data[1][int(eq*n):])))
-	Ms,Es=array(Ms)/(size**2),array(Es)/(size**2)
-	return Es[1:],Ms[1:]
+		varMs.append(var(array(data[1][int(eq*n):])))
+	Ms,Es,varEs,varMs=array(Ms)/(size**2),array(Es)/(size**2),array(varEs),array(varMs)
+	return Es[1:],Ms[1:],varEs[1:],varMs[1:]
 
 def plot1():
-	Temps=[i/20 for i in range(1,101)]
-	size=50
-	n=10000000
-	p=0.5
+	Temps=linspace(1,6,101)[1:]
+	size=500
+	n=1000000
+	p=0.75
 	eq=0.75
 	
 	fig=plt.figure(figsize=([10,6]))
@@ -35,23 +34,23 @@ def plot1():
 	ax0.set(xlabel='Temperature', ylabel='E/N')
 	ax1=plt.subplot(gs[0,1])
 	ax1.set_title('Magnetization')
-	ax1.set(xlabel='Temperature', ylabel='M/N')
+	ax1.set(xlabel='Temperature', ylabel='|M|/N')
 	ax2=plt.subplot(gs[1,0])
 	ax2.set_title('Heat Capacity')
-	ax2.set(xlabel='Temperature', ylabel='Cv/N')
+	ax2.set(xlabel='Temperature', ylabel='Cv')
 	ax3=plt.subplot(gs[1,1])
 	ax3.set_title('Susceptibility')
-	ax3.set(xlabel='Temperature', ylabel='Chi/N')
+	ax3.set(xlabel='Temperature', ylabel='Chi')
 	
-	var=[50]
+	var=[50,100,200]
 	for x in var:
 		size=x
 		colour=colours.pop()
-		Es,Ms=values(size,n,p,eq,Temps)
+		Es,Ms,varEs,varMs=values(size,n,p,eq,Temps)
 		ax0.plot(Temps,Es,'.',color=colour) #values("parameter"=x)
 		ax1.plot(Temps,Ms,'.',color=colour)
-		ax2.plot(Temps[1:-1],[ctl_diff(Temps,Es,i) for i in range(len(Temps[1:-1]))],'.',color=colour)
-		ax3.plot(Temps[1:-1],[ctl_diff(Temps,Ms,i) for i in range(len(Temps[1:-1]))],'.',color=colour)
+		ax2.plot(Temps,varEs/((Temps)**2),'.',color=colour)
+		ax3.plot(Temps,varMs/Temps,'.',color=colour)
 		if len(var)>1:
 			ax0.legend(var)
 			ax1.legend(var)
